@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package dev.selimsahin.kunefe;
+
+option java_package = "dev.selimsahin.kunefe.proto";
+option java_multiple_files = true;
+option java_outer_classname = "KunefeConsumerProto";
+
+import "common.proto";
+
+service ConsumerService {
+  rpc Subscribe(SubscribeRequest) returns (stream KunefeMessage);
+  rpc CommitOffset(CommitOffsetRequest) returns (CommitOffsetResponse);
+  rpc RegisterConsumerGroup(RegisterConsumerGroupRequest) returns (RegisterConsumerGroupResponse);
+}
+
+message SubscribeRequest {
+  string topic = 1;
+  string consumer_group = 2;
+  string consumer_id = 3;
+  int64 from_offset = 4;
+}
+
+message CommitOffsetRequest {
+  string topic = 1;
+  string consumer_group = 2;
+  string consumer_id = 3;
+  int64 offset = 4;
+}
+
+message CommitOffsetResponse {
+  bool success = 1;
+}
+
+message RegisterConsumerGroupRequest {
+  string consumer_group = 1;
+  string topic = 2;
+}
+
+message RegisterConsumerGroupResponse {
+  bool success = 1;
+  string message = 2;
+}

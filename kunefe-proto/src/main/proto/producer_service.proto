@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package dev.selimsahin.kunefe;
+
+option java_package = "dev.selimsahin.kunefe.proto";
+option java_multiple_files = true;
+option java_outer_classname = "KunefeProducerProto";
+
+service ProducerService {
+  rpc Publish(PublishRequest) returns (PublishResponse);
+}
+
+message PublishRequest {
+  string topic = 1;
+  bytes payload = 2;
+  map<string, string> headers = 3;
+}
+
+message PublishResponse {
+  bool success = 1;
+  string message_id = 2;
+  int64 offset = 3;
+}

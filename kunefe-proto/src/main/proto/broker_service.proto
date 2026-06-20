@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package dev.selimsahin.kunefe;
+
+option java_package = "dev.selimsahin.kunefe.proto";
+option java_multiple_files = true;
+option java_outer_classname = "KunefeBrokerProto";
+
+service BrokerService {
+  rpc CreateTopic(CreateTopicRequest) returns (CreateTopicResponse);
+  rpc DeleteTopic(DeleteTopicRequest) returns (DeleteTopicResponse);
+  rpc ListTopics(ListTopicsRequest) returns (ListTopicsResponse);
+}
+
+message CreateTopicRequest {
+  string topic = 1;
+  int32 retention_hours = 2;
+}
+
+message CreateTopicResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteTopicRequest {
+  string topic = 1;
+}
+
+message DeleteTopicResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ListTopicsRequest {}
+
+message ListTopicsResponse {
+  repeated string topics = 1;
+}
