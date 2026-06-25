@@ -11,7 +11,7 @@ dependencies {
     implementation("io.grpc:grpc-netty-shaded:1.64.0")
     implementation("io.grpc:grpc-protobuf:1.64.0")
     implementation("io.grpc:grpc-stub:1.64.0")
-    implementation("net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE")
+    implementation("net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE")
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter")

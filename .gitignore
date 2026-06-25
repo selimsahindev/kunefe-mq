@@ -21,3 +21,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Kunefe runtime data
+kunefe-data/
+kunefe-offsets/

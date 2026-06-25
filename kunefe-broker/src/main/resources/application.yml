@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: kunefe-broker
+
+grpc:
+  server:
+    port: 6565
+
+kunefe:
+  data:
+    dir: ./kunefe-data
+  offset:
+    dir: ./kunefe-offsets
+
+logging:
+  level:
+    root: INFO
+    dev.selimsahin.kunefe: DEBUG
