@@ -19,10 +19,10 @@ public class TopicService {
 
     private static final Logger log = LoggerFactory.getLogger(TopicService.class);
 
-    private final TopicRegistry topicRegistry;
+    private final TopicRegistryPort topicRegistry;
     private final LogManagerPort logManager;
 
-    public TopicService(TopicRegistry topicRegistry, LogManagerPort logManager) {
+    public TopicService(TopicRegistryPort topicRegistry, LogManagerPort logManager) {
         this.topicRegistry = topicRegistry;
         this.logManager = logManager;
     }

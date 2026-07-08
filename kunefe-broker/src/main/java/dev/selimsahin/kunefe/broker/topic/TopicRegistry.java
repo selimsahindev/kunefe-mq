@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * All business rules live in TopicService.
  */
 @Component
-public class TopicRegistry {
+public class TopicRegistry implements TopicRegistryPort {
 
     private final ConcurrentHashMap<String, Topic> topics = new ConcurrentHashMap<>();
 
