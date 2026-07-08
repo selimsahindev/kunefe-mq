@@ -1,6 +1,6 @@
 package dev.selimsahin.kunefe.broker.topic;
 
-import dev.selimsahin.kunefe.broker.log.LogManager;
+import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,9 +20,9 @@ public class TopicService {
     private static final Logger log = LoggerFactory.getLogger(TopicService.class);
 
     private final TopicRegistry topicRegistry;
-    private final LogManager logManager;
+    private final LogManagerPort logManager;
 
-    public TopicService(TopicRegistry topicRegistry, LogManager logManager) {
+    public TopicService(TopicRegistry topicRegistry, LogManagerPort logManager) {
         this.topicRegistry = topicRegistry;
         this.logManager = logManager;
     }

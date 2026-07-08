@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * locking the entire map on every read.
  */
 @Component
-public class LogManager {
+public class LogManager implements LogManagerPort {
 
     private static final Logger log = LoggerFactory.getLogger(LogManager.class);
 

@@ -1,6 +1,6 @@
 package dev.selimsahin.kunefe.broker.producer;
 
-import dev.selimsahin.kunefe.broker.log.LogManager;
+import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
 import dev.selimsahin.kunefe.broker.topic.TopicService;
 import org.slf4j.Logger;
@@ -25,10 +25,10 @@ public class ProducerService {
 
     private static final Logger log = LoggerFactory.getLogger(ProducerService.class);
 
-    private final LogManager logManager;
+    private final LogManagerPort logManager;
     private final TopicService topicService;
 
-    public ProducerService(LogManager logManager, TopicService topicService) {
+    public ProducerService(LogManagerPort logManager, TopicService topicService) {
         this.logManager = logManager;
         this.topicService = topicService;
     }

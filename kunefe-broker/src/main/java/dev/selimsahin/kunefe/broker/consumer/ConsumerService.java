@@ -1,7 +1,7 @@
 package dev.selimsahin.kunefe.broker.consumer;
 
 import dev.selimsahin.kunefe.broker.log.LogEntry;
-import dev.selimsahin.kunefe.broker.log.LogManager;
+import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
 import dev.selimsahin.kunefe.broker.topic.TopicService;
 import org.rocksdb.RocksDBException;
@@ -31,13 +31,13 @@ public class ConsumerService {
 
     private final ConsumerGroupRegistry groupRegistry;
     private final OffsetStore offsetStore;
-    private final LogManager logManager;
+    private final LogManagerPort logManager;
     private final TopicService topicService;
 
     public ConsumerService(
             ConsumerGroupRegistry groupRegistry,
             OffsetStore offsetStore,
-            LogManager logManager,
+            LogManagerPort logManager,
             TopicService topicService
     ) {
         this.groupRegistry = groupRegistry;
