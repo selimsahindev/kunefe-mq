@@ -29,14 +29,14 @@ public class ConsumerService {
 
     private static final long PUSH_INTERVAL_MS = 100;
 
-    private final ConsumerGroupRegistry groupRegistry;
-    private final OffsetStore offsetStore;
+    private final ConsumerGroupRegistryPort groupRegistry;
+    private final OffsetStorePort offsetStore;
     private final LogManagerPort logManager;
     private final TopicServicePort topicService;
 
     public ConsumerService(
-            ConsumerGroupRegistry groupRegistry,
-            OffsetStore offsetStore,
+            ConsumerGroupRegistryPort groupRegistry,
+            OffsetStorePort offsetStore,
             LogManagerPort logManager,
             TopicServicePort topicService
     ) {

@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
  * Value format: offset as 8-byte long (big-endian)
  */
 @Component
-public class OffsetStore {
+public class OffsetStore implements OffsetStorePort {
 
     private static final Logger log = LoggerFactory.getLogger(OffsetStore.class);
 

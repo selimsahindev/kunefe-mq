@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * group to consume multiple topics independently.
  */
 @Component
-public class ConsumerGroupRegistry {
+public class ConsumerGroupRegistry implements ConsumerGroupRegistryPort {
 
     private final ConcurrentHashMap<String, ConsumerGroup> groups = new ConcurrentHashMap<>();
 
