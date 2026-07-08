@@ -3,7 +3,7 @@ package dev.selimsahin.kunefe.broker.consumer;
 import dev.selimsahin.kunefe.broker.log.LogEntry;
 import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
-import dev.selimsahin.kunefe.broker.topic.TopicService;
+import dev.selimsahin.kunefe.broker.topic.TopicServicePort;
 import org.rocksdb.RocksDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +32,13 @@ public class ConsumerService {
     private final ConsumerGroupRegistry groupRegistry;
     private final OffsetStore offsetStore;
     private final LogManagerPort logManager;
-    private final TopicService topicService;
+    private final TopicServicePort topicService;
 
     public ConsumerService(
             ConsumerGroupRegistry groupRegistry,
             OffsetStore offsetStore,
             LogManagerPort logManager,
-            TopicService topicService
+            TopicServicePort topicService
     ) {
         this.groupRegistry = groupRegistry;
         this.offsetStore = offsetStore;

@@ -2,7 +2,7 @@ package dev.selimsahin.kunefe.broker.producer;
 
 import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
-import dev.selimsahin.kunefe.broker.topic.TopicService;
+import dev.selimsahin.kunefe.broker.topic.TopicServicePort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,9 +26,9 @@ public class ProducerService {
     private static final Logger log = LoggerFactory.getLogger(ProducerService.class);
 
     private final LogManagerPort logManager;
-    private final TopicService topicService;
+    private final TopicServicePort topicService;
 
-    public ProducerService(LogManagerPort logManager, TopicService topicService) {
+    public ProducerService(LogManagerPort logManager, TopicServicePort topicService) {
         this.logManager = logManager;
         this.topicService = topicService;
     }

@@ -15,7 +15,7 @@ import java.util.Collection;
  * Coordinates between TopicRegistry (metadata) and LogManager (data).
  */
 @Service
-public class TopicService {
+public class TopicService implements TopicServicePort {
 
     private static final Logger log = LoggerFactory.getLogger(TopicService.class);
 
