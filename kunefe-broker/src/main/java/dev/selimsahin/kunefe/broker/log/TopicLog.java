@@ -34,7 +34,7 @@ public class TopicLog implements AutoCloseable {
     private final RandomAccessFile file;
     private final AtomicLong nextOffset;
     private final ReadWriteLock lock;
-    private long writePosition;
+    private volatile long writePosition;
 
     public TopicLog(String topic, Path dataDir) throws IOException {
         this.topic = topic;
@@ -86,7 +86,7 @@ public class TopicLog implements AutoCloseable {
      * Reads all messages starting from the given offset.
      */
     public List<LogEntry> readFrom(long fromOffset) throws IOException {
-        lock.readLock().lock();
+        lock.writeLock().lock();
         try {
             List<LogEntry> entries = new ArrayList<>();
             long readPosition = 0;
@@ -94,10 +94,19 @@ public class TopicLog implements AutoCloseable {
             while (readPosition + LogEntry.FIXED_HEADER_SIZE <= writePosition) {
                 file.seek(readPosition);
 
+                if (readPosition + LogEntry.FIXED_HEADER_SIZE > writePosition) {
+                    break;
+                }
+
                 long offset = file.readLong();
                 long timestamp = file.readLong();
                 int headersLen = file.readInt();
                 int payloadLen = file.readInt();
+
+                long nextPosition = readPosition + LogEntry.FIXED_HEADER_SIZE + payloadLen + headersLen;
+                if (nextPosition > writePosition) {
+                    break;
+                }
 
                 byte[] payload = new byte[payloadLen];
                 file.readFully(payload);
@@ -111,12 +120,12 @@ public class TopicLog implements AutoCloseable {
                     entries.add(new LogEntry(offset, timestamp, payload, entryHeaders));
                 }
 
-                readPosition += LogEntry.FIXED_HEADER_SIZE + payloadLen + headersLen;
+                readPosition = nextPosition;
             }
 
             return entries;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
