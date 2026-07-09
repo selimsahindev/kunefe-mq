@@ -1,0 +1,14 @@
+services:
+  kunefe-broker:
+    image: kunefe-broker:latest
+    container_name: kunefe-broker
+    ports:
+      - "6565:6565"
+    volumes:
+      - kunefe-data:/app/kunefe-data
+      - kunefe-offsets:/app/kunefe-offsets
+    restart: unless-stopped
+
+volumes:
+  kunefe-data:
+  kunefe-offsets:
