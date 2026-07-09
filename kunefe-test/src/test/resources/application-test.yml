@@ -1,0 +1,14 @@
+grpc:
+  server:
+    port: 9099
+
+kunefe:
+  data:
+    dir: ./kunefe-test-data
+  offset:
+    dir: ./kunefe-test-offsets
+
+logging:
+  level:
+    root: WARN
+    dev.selimsahin.kunefe: DEBUG
