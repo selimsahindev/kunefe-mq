@@ -11,6 +11,13 @@ kunefe:
     dir: ./kunefe-data
   offset:
     dir: ./kunefe-offsets
+  log:
+    segment:
+      max-bytes: 67108864         # 64MB
+      max-hours: 168              # 7 days
+    retention:
+      hours: 168                  # 7 days
+      check-interval-ms: 300000   # 5 minutes
 
 logging:
   level:
