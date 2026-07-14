@@ -25,3 +25,5 @@ logs/
 # Kunefe runtime data
 kunefe-data/
 kunefe-offsets/
+**/kunefe-data/
+**/kunefe-offsets/
