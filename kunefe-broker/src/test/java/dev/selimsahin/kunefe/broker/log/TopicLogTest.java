@@ -26,10 +26,12 @@ class TopicLogTest {
     Path tempDir;
 
     private TopicLog topicLog;
+    private LogConfig logConfig;
 
     @BeforeEach
     void setUp() throws IOException {
-        topicLog = new TopicLog("test-topic", tempDir);
+        logConfig = new LogConfig();  // with default values
+        topicLog = new TopicLog("test-topic", tempDir, logConfig);
     }
 
     @AfterEach
@@ -111,7 +113,7 @@ class TopicLogTest {
         topicLog.close();
 
         // Simulate broker restart, create new TopicLog instance
-        TopicLog recoveredLog = new TopicLog("test-topic", tempDir);
+        TopicLog recoveredLog = new TopicLog("test-topic", tempDir, logConfig);
         List<LogEntry> entries = recoveredLog.readFrom(0);
         recoveredLog.close();
 
@@ -126,7 +128,7 @@ class TopicLogTest {
         topicLog.close();
 
         // Simulate broker restart
-        TopicLog recoveredLog = new TopicLog("test-topic", tempDir);
+        TopicLog recoveredLog = new TopicLog("test-topic", tempDir, logConfig);
         long nextOffset = recoveredLog.getNextOffset();
         recoveredLog.close();
 

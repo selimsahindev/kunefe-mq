@@ -3,13 +3,13 @@ package dev.selimsahin.kunefe.broker.log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,65 +17,59 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Append-only log for a single topic backed by a RandomAccessFile.
+ * Append-only log for a single topic, backed by multiple log segments.
  * <p>
- * Each message is written sequentially to disk. The file pointer is
- * tracked explicitly to support both appending and reading from any offset.
+ * Segments are rolled when the active segment exceeds the configured size
+ * or age threshold. Expired segments are deleted by RetentionManager.
  * <p>
- * Thread safety is achieved via a ReadWriteLock:
- * - Multiple concurrent readers are allowed
- * - Writes are exclusive
+ * Thread safety is achieved via a ReadWriteLock — writes are exclusive,
+ * reads are concurrent across different segments but serialized per segment
+ * due to RandomAccessFile's shared file pointer.
  */
 public class TopicLog implements AutoCloseable {
 
     private static final Logger log = LoggerFactory.getLogger(TopicLog.class);
 
     private final String topic;
-    private final RandomAccessFile file;
+    private final Path segmentDir;
+    private final LogConfig config;
     private final AtomicLong nextOffset;
     private final ReadWriteLock lock;
-    private volatile long writePosition;
+    private final List<LogSegment> segments;
 
-    public TopicLog(String topic, Path dataDir) throws IOException {
+    private LogSegment activeSegment;
+
+    public TopicLog(String topic, Path dataDir, LogConfig config) throws IOException {
         this.topic = topic;
+        this.config = config;
         this.lock = new ReentrantReadWriteLock();
         this.nextOffset = new AtomicLong(0);
+        this.segments = new ArrayList<>();
+        this.segmentDir = dataDir.resolve(topic);
 
-        Path logFile = dataDir.resolve(topic + ".log");
-        this.file = new RandomAccessFile(logFile.toFile(), "rw");
-
-        recoverOffset();
+        Files.createDirectories(segmentDir);
+        recoverSegments();
     }
 
     /**
-     * Appends a message to the log and returns its assigned offset.
-     * <p>
-     * Write format per entry:
-     * [offset: 8B][timestamp: 8B][headersLen: 4B][payloadLen: 4B][payload][headers]
+     * Appends a message to the active segment.
+     * Rolls the segment if it exceeds the configured size or age threshold.
+     *
+     * @return the offset assigned to the message
      */
     public long append(byte[] payload, Map<String, String> headers) throws IOException {
         lock.writeLock().lock();
         try {
             long offset = nextOffset.getAndIncrement();
-            long timestamp = System.currentTimeMillis();
-            byte[] headersBytes = serializeHeaders(headers);
+            activeSegment.append(offset, payload, headers);
 
-            ByteBuffer buffer = ByteBuffer.allocate(
-                    LogEntry.FIXED_HEADER_SIZE + payload.length + headersBytes.length
-            );
+            if (activeSegment.shouldRoll(
+                    config.getSegment().getMaxBytes(),
+                    config.getSegment().getMaxHours()
+            )) {
+                rollSegment();
+            }
 
-            buffer.putLong(offset);
-            buffer.putLong(timestamp);
-            buffer.putInt(headersBytes.length);
-            buffer.putInt(payload.length);
-            buffer.put(payload);
-            buffer.put(headersBytes);
-
-            file.seek(writePosition);
-            file.write(buffer.array());
-            writePosition += buffer.capacity();
-
-            log.debug("Appended message to topic '{}' at offset {}", topic, offset);
             return offset;
         } finally {
             lock.writeLock().unlock();
@@ -83,47 +77,46 @@ public class TopicLog implements AutoCloseable {
     }
 
     /**
-     * Reads all messages starting from the given offset.
+     * Reads all messages starting from the given offset, across all segments.
      */
     public List<LogEntry> readFrom(long fromOffset) throws IOException {
         lock.writeLock().lock();
         try {
             List<LogEntry> entries = new ArrayList<>();
-            long readPosition = 0;
 
-            while (readPosition + LogEntry.FIXED_HEADER_SIZE <= writePosition) {
-                file.seek(readPosition);
-
-                if (readPosition + LogEntry.FIXED_HEADER_SIZE > writePosition) {
-                    break;
+            for (LogSegment segment : segments) {
+                if (segment.getLastOffset() < fromOffset) {
+                    continue;
                 }
-
-                long offset = file.readLong();
-                long timestamp = file.readLong();
-                int headersLen = file.readInt();
-                int payloadLen = file.readInt();
-
-                long nextPosition = readPosition + LogEntry.FIXED_HEADER_SIZE + payloadLen + headersLen;
-                if (nextPosition > writePosition) {
-                    break;
-                }
-
-                byte[] payload = new byte[payloadLen];
-                file.readFully(payload);
-
-                byte[] headersBytes = new byte[headersLen];
-                file.readFully(headersBytes);
-
-                Map<String, String> entryHeaders = deserializeHeaders(headersBytes);
-
-                if (offset >= fromOffset) {
-                    entries.add(new LogEntry(offset, timestamp, payload, entryHeaders));
-                }
-
-                readPosition = nextPosition;
+                entries.addAll(segment.readFrom(fromOffset));
             }
 
             return entries;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Returns all segments — used by RetentionManager for cleanup.
+     */
+    public List<LogSegment> getSegments() {
+        lock.writeLock().lock();
+        try {
+            return List.copyOf(segments);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Removes a segment from the list after RetentionManager deletes it.
+     */
+    public void removeSegment(LogSegment segment) {
+        lock.writeLock().lock();
+        try {
+            segments.remove(segment);
+            log.info("Segment removed from topic '{}': {}", topic, segment.getPath().getFileName());
         } finally {
             lock.writeLock().unlock();
         }
@@ -138,87 +131,61 @@ public class TopicLog implements AutoCloseable {
     }
 
     /**
-     * Scans the existing log file on startup to recover the next offset.
-     * Ensures offset continuity across broker restarts.
+     * Rolls the active segment — deactivates it and opens a new one.
      */
-    private void recoverOffset() throws IOException {
-        long fileLength = file.length();
-        long readPosition = 0;
-        long lastOffset = -1;
+    private void rollSegment() throws IOException {
+        activeSegment.deactivate();
+        long newBaseOffset = nextOffset.get();
+        LogSegment newSegment = new LogSegment(newBaseOffset, segmentDir);
+        segments.add(newSegment);
+        activeSegment = newSegment;
+        log.info("Rolled segment for topic '{}' — new base offset: {}", topic, newBaseOffset);
+    }
 
-        while (readPosition + LogEntry.FIXED_HEADER_SIZE <= fileLength) {
-            file.seek(readPosition);
+    /**
+     * On startup, scans the segment directory for existing segment files
+     * and recovers them in order. Creates an initial segment if none exist.
+     */
+    private void recoverSegments() throws IOException {
+        File[] segmentFiles = segmentDir.toFile().listFiles(
+                (dir, name) -> name.endsWith(".log")
+        );
 
-            long offset = file.readLong();
-            long timestamp = file.readLong();
-            int headersLen = file.readInt();
-            int payloadLen = file.readInt();
+        if (segmentFiles == null || segmentFiles.length == 0) {
+            LogSegment initial = new LogSegment(0, segmentDir);
+            segments.add(initial);
+            activeSegment = initial;
+            log.info("No existing segments found for topic '{}' — starting fresh", topic);
+            return;
+        }
 
-            if (timestamp == 0) {
-                break;
+        Arrays.sort(segmentFiles, Comparator.comparing(File::getName));
+
+        for (int i = 0; i < segmentFiles.length; i++) {
+            long baseOffset = Long.parseLong(
+                    segmentFiles[i].getName().replace(".log", "")
+            );
+            LogSegment segment = new LogSegment(baseOffset, segmentDir);
+
+            if (i < segmentFiles.length - 1) {
+                segment.deactivate();
             }
 
-            lastOffset = offset;
-            readPosition += LogEntry.FIXED_HEADER_SIZE + payloadLen + headersLen;
+            segments.add(segment);
         }
 
-        writePosition = readPosition;
-        nextOffset.set(lastOffset + 1);
-        log.info("Recovered topic '{}' — next offset: {}", topic, nextOffset.get());
-    }
+        activeSegment = segments.getLast();
+        nextOffset.set(activeSegment.getLastOffset() + 1);
 
-    private byte[] serializeHeaders(Map<String, String> headers) {
-        if (headers == null || headers.isEmpty()) {
-            return new byte[0];
-        }
-
-        int totalSize = 0;
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            totalSize += 4 + entry.getKey().getBytes(StandardCharsets.UTF_8).length;
-            totalSize += 4 + entry.getValue().getBytes(StandardCharsets.UTF_8).length;
-        }
-
-        ByteBuffer buf = ByteBuffer.allocate(totalSize);
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            byte[] keyBytes = entry.getKey().getBytes(StandardCharsets.UTF_8);
-            byte[] valueBytes = entry.getValue().getBytes(StandardCharsets.UTF_8);
-            buf.putInt(keyBytes.length);
-            buf.put(keyBytes);
-            buf.putInt(valueBytes.length);
-            buf.put(valueBytes);
-        }
-
-        return buf.array();
-    }
-
-    private Map<String, String> deserializeHeaders(byte[] bytes) {
-        Map<String, String> headers = new HashMap<>();
-        if (bytes.length == 0) {
-            return headers;
-        }
-
-        ByteBuffer buf = ByteBuffer.wrap(bytes);
-        while (buf.remaining() > 0) {
-            int keyLen = buf.getInt();
-            byte[] keyBytes = new byte[keyLen];
-            buf.get(keyBytes);
-
-            int valueLen = buf.getInt();
-            byte[] valueBytes = new byte[valueLen];
-            buf.get(valueBytes);
-
-            headers.put(
-                    new String(keyBytes, StandardCharsets.UTF_8),
-                    new String(valueBytes, StandardCharsets.UTF_8)
-            );
-        }
-
-        return headers;
+        log.info("Recovered {} segment(s) for topic '{}' — next offset: {}",
+                segments.size(), topic, nextOffset.get());
     }
 
     @Override
     public void close() throws IOException {
-        file.close();
+        for (LogSegment segment : segments) {
+            segment.close();
+        }
         log.info("TopicLog '{}' closed", topic);
     }
 }
