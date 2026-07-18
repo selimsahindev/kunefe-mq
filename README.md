@@ -15,9 +15,9 @@
   <img src="https://img.shields.io/badge/license-MIT-black"/>
 </p>
 
-## Kunefe MQ
-
+<p align="center">
 A lightweight, low-latency gRPC-based message broker for microservices. Built as a leaner alternative to Kafka.
+</p>
 
 > ***Künefe** (pronounced /ˌkuːnəˈfeɪ/) is a traditional Turkish dessert known for its layered structure. Just like the dessert, Kunefe MQ is built in layers — each one doing exactly what it should.*
 
@@ -29,15 +29,15 @@ Kafka is a powerful system, but it comes with significant operational overhead �
 
 Kunefe MQ makes a different set of trade-offs:
 
-| | Kafka | Kunefe                        |
-|---|---|-------------------------------|
-| **Consumption model** | Pull-based | Push-based (server streaming) |
-| **Ordering** | Per-partition | Global, always guaranteed     |
-| **Partitioning** | Yes | No — intentionally omitted    |
-| **Dependencies** | ZooKeeper / KRaft | None                          |
-| **Deployment** | Multiple processes | Single Docker container       |
-| **Throughput** | Millions of msg/sec | Thousands of msg/sec          |
-| **Target** | Large-scale systems | Small-to-medium microservices |
+| | Kafka | Kunefe                           |
+|---|---|----------------------------------|
+| **Consumption model** | Pull-based | ✅ Push-based (server streaming)  |
+| **Ordering** | ⚠️ Per-partition only | ✅ Global, always guaranteed      |
+| **Partitioning** | ⚠️ Required complexity | ✅ No - intentionally omitted     |
+| **Dependencies** | ⚠️ ZooKeeper / KRaft | ✅ None                           |
+| **Deployment** | ⚠️ Multiple processes | ✅ Single Docker container        |
+| **Throughput** | ✅ Millions of msg/sec | ⚠️ Thousands of msg/sec          |
+| **Target** | ✅ Large-scale systems | ⚠️ Small-to-medium microservices |
 
 Kunefe optimizes for **low latency** and **developer experience** over raw throughput.
 
@@ -51,6 +51,7 @@ Kunefe optimizes for **low latency** and **developer experience** over raw throu
 
 - **Push-based consumption** — broker pushes messages to subscribers over a long-lived gRPC server-streaming connection. No polling, no `linger.ms`.
 - **Append-only log** — messages are written sequentially to disk using `RandomAccessFile`. Immutable, durable, and fast.
+- **Segment-based log rotation** — log files are split into segments and rotated based on size or age, with configurable retention policy.
 - **Persistent offsets** — consumer group offsets are stored in RocksDB. Broker restarts do not cause message loss or redelivery.
 - **Java 21 Virtual Threads** — each subscriber runs on a dedicated virtual thread. Thousands of concurrent consumers with zero platform thread exhaustion.
 - **Global ordering** — no partitions means no partition-key complexity. Message order is always guaranteed within a topic.
@@ -62,16 +63,21 @@ Kunefe optimizes for **low latency** and **developer experience** over raw throu
 ### Run with Docker
 
 ```bash
-docker run -p 6565:6565 selimsahindev/kunefe-broker:latest
+docker run -p 6565:6565 -p 8080:8080 selimsahindev/kunefe-broker:latest
 ```
 
 ### Run with Docker Compose
+
+Includes Prometheus and Grafana out of the box:
 
 ```bash
 docker compose up
 ```
 
-Broker starts on port `6565` (gRPC).
+- Broker: `localhost:6565`
+- Metrics: `localhost:8080/actuator/prometheus`
+- Grafana: `localhost:3000` (admin/admin)
+- Prometheus: `localhost:9090`
 
 ---
 
@@ -121,12 +127,11 @@ public void onOrder(byte[] payload) {
 
 ```
 kunefe/
-├── kunefe-proto/              # Protobuf contracts         — BrokerService, ProducerService, ConsumerService
-├── kunefe-broker/             # Broker application         — log engine, gRPC services, offset store
-├── kunefe-client/             # Core Java client           — KunefeClient, KunefeProducer, KunefeConsumer
-├── kunefe-spring-client/      # Spring integration layer
-├── kunefe-spring-boot-starter # Auto-configuration         — KunefeTemplate, @KunefeListener
-└── kunefe-test/               # Integration tests
+├── kunefe-proto/               # Protobuf contracts  — BrokerService, ProducerService, ConsumerService
+├── kunefe-broker/              # Broker application  — log engine, gRPC services, offset store
+├── kunefe-client/              # Core Java client    — KunefeClient, KunefeProducer, KunefeConsumer
+├── kunefe-spring-boot-starter/ # Auto-configuration  — KunefeTemplate, @KunefeListener
+└── kunefe-test/                # Integration tests
 ```
 
 ---
