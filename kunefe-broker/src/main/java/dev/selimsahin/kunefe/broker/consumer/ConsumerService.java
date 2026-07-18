@@ -1,5 +1,6 @@
 package dev.selimsahin.kunefe.broker.consumer;
 
+import dev.selimsahin.kunefe.broker.config.KunefeMetrics;
 import dev.selimsahin.kunefe.broker.log.LogEntry;
 import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
@@ -33,17 +35,20 @@ public class ConsumerService {
     private final OffsetStorePort offsetStore;
     private final LogManagerPort logManager;
     private final TopicServicePort topicService;
+    private final KunefeMetrics metrics;
 
     public ConsumerService(
             ConsumerGroupRegistryPort groupRegistry,
             OffsetStorePort offsetStore,
             LogManagerPort logManager,
-            TopicServicePort topicService
+            TopicServicePort topicService,
+            KunefeMetrics metrics
     ) {
         this.groupRegistry = groupRegistry;
         this.offsetStore = offsetStore;
         this.logManager = logManager;
         this.topicService = topicService;
+        this.metrics = metrics;
     }
 
     /**
@@ -78,7 +83,7 @@ public class ConsumerService {
             String topic,
             String consumerId,
             Consumer<LogEntry> messageCallback,
-            java.util.function.BooleanSupplier isActive
+            BooleanSupplier isActive
     ) throws IOException, RocksDBException, InterruptedException {
         if (!topicService.topicExists(topic)) {
             throw new TopicNotFoundException(topic);
@@ -86,6 +91,7 @@ public class ConsumerService {
 
         ConsumerGroup group = groupRegistry.register(groupId, topic);
         group.addConsumer(consumerId);
+        metrics.incrementActiveConsumers();
 
         long fromOffset = offsetStore.get(groupId, topic, consumerId);
         log.info("Consumer '{}' in group '{}' subscribing to '{}' from offset {}",
@@ -95,6 +101,7 @@ public class ConsumerService {
             pushLoop(groupId, topic, consumerId, fromOffset, messageCallback, isActive);
         } finally {
             group.removeConsumer(consumerId);
+            metrics.decrementActiveConsumers();
             log.info("Consumer '{}' unsubscribed from topic '{}'", consumerId, topic);
         }
     }
@@ -123,7 +130,7 @@ public class ConsumerService {
             String consumerId,
             long fromOffset,
             Consumer<LogEntry> messageCallback,
-            java.util.function.BooleanSupplier isActive
+            BooleanSupplier isActive
     ) throws IOException, InterruptedException {
         long currentOffset = fromOffset;
 
@@ -140,7 +147,12 @@ public class ConsumerService {
                     return;
                 }
                 messageCallback.accept(entry);
+                metrics.recordConsume(topic, groupId);
                 currentOffset = entry.offset() + 1;
+
+                // Update consumer lag
+                long brokerNextOffset = logManager.getNextOffset(topic);
+                metrics.updateConsumerLag(topic, groupId, brokerNextOffset - currentOffset);
             }
 
             if (entries.isEmpty()) {

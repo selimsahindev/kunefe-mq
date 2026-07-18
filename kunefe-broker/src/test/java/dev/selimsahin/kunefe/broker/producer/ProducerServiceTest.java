@@ -1,5 +1,6 @@
 package dev.selimsahin.kunefe.broker.producer;
 
+import dev.selimsahin.kunefe.broker.config.KunefeMetrics;
 import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
 import dev.selimsahin.kunefe.broker.topic.TopicServicePort;
@@ -34,6 +35,9 @@ class ProducerServiceTest {
 
     @Mock
     private TopicServicePort topicService;
+
+    @Mock
+    private KunefeMetrics metrics;
 
     @InjectMocks
     private ProducerService producerService;

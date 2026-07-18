@@ -1,5 +1,6 @@
 package dev.selimsahin.kunefe.broker.consumer;
 
+import dev.selimsahin.kunefe.broker.config.KunefeMetrics;
 import dev.selimsahin.kunefe.broker.log.LogEntry;
 import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
@@ -42,6 +43,9 @@ class ConsumerServiceTest {
 
     @Mock
     private TopicServicePort topicService;
+
+    @Mock
+    private KunefeMetrics metrics;
 
     @InjectMocks
     private ConsumerService consumerService;
