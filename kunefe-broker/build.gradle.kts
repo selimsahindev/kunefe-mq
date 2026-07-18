@@ -8,9 +8,9 @@ dependencies {
     implementation(project(":kunefe-proto"))
 
     // gRPC
-    implementation("io.grpc:grpc-netty-shaded:1.64.0")
-    implementation("io.grpc:grpc-protobuf:1.64.0")
-    implementation("io.grpc:grpc-stub:1.64.0")
+    implementation("io.grpc:grpc-netty-shaded:1.82.2")
+    implementation("io.grpc:grpc-protobuf:1.82.2")
+    implementation("io.grpc:grpc-stub:1.82.2")
     implementation("net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE")
 
     // Spring Boot

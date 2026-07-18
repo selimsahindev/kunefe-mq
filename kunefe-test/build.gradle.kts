@@ -18,9 +18,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     // gRPC
-    testImplementation("io.grpc:grpc-netty-shaded:1.64.0")
-    testImplementation("io.grpc:grpc-protobuf:1.64.0")
-    testImplementation("io.grpc:grpc-stub:1.64.0")
+    testImplementation("io.grpc:grpc-netty-shaded:1.82.2")
+    testImplementation("io.grpc:grpc-protobuf:1.82.2")
+    testImplementation("io.grpc:grpc-stub:1.82.2")
 
     // JUnit Platform
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
