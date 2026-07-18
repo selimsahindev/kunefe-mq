@@ -6,6 +6,9 @@
   <a href="https://github.com/selimsahindev/kunefe-mq/actions/workflows/build.yml">
     <img src="https://github.com/selimsahindev/kunefe-mq/actions/workflows/build.yml/badge.svg" alt="Build and Test"/>
   </a>
+  <a href="https://securityscorecards.dev/viewer/?uri=github.com/selimsahindev/kunefe-mq">
+    <img src="https://api.securityscorecards.dev/projects/github.com/selimsahindev/kunefe-mq/badge" alt="OpenSSF Scorecard"/>
+  </a>
   <img src="https://img.shields.io/badge/Java-21-black"/>
   <img src="https://img.shields.io/badge/gRPC-1.64-black"/>
   <img src="https://img.shields.io/badge/Spring%20Boot-3.4.5-black"/>
