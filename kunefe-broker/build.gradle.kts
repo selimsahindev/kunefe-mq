@@ -18,7 +18,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
 
     // RocksDB
-    implementation("org.rocksdb:rocksdbjni:9.2.1")
+    implementation("org.rocksdb:rocksdbjni:10.10.1.1")
 
     // Actuator
     implementation("org.springframework.boot:spring-boot-starter-actuator")
