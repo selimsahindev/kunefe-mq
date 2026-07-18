@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'kunefe-broker'
+    static_configs:
+      - targets: ['kunefe-broker:8080']
+    metrics_path: '/actuator/prometheus'

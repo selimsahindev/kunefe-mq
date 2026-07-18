@@ -15,9 +15,16 @@ dependencies {
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
 
     // RocksDB
     implementation("org.rocksdb:rocksdbjni:9.2.1")
+
+    // Actuator
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Micrometer Prometheus
+    implementation("io.micrometer:micrometer-registry-prometheus")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito:mockito-core:5.11.0")

@@ -1,5 +1,6 @@
 package dev.selimsahin.kunefe.broker.producer;
 
+import dev.selimsahin.kunefe.broker.config.KunefeMetrics;
 import dev.selimsahin.kunefe.broker.log.LogManagerPort;
 import dev.selimsahin.kunefe.broker.topic.TopicNotFoundException;
 import dev.selimsahin.kunefe.broker.topic.TopicServicePort;
@@ -27,10 +28,16 @@ public class ProducerService {
 
     private final LogManagerPort logManager;
     private final TopicServicePort topicService;
+    private final KunefeMetrics metrics;
 
-    public ProducerService(LogManagerPort logManager, TopicServicePort topicService) {
+    public ProducerService(
+            LogManagerPort logManager,
+            TopicServicePort topicService,
+            KunefeMetrics metrics
+    ) {
         this.logManager = logManager;
         this.topicService = topicService;
+        this.metrics = metrics;
     }
 
     /**
@@ -51,6 +58,7 @@ public class ProducerService {
 
         long offset = logManager.append(topic, payload, headers);
         topicService.incrementMessageCount(topic);
+        metrics.recordPublish(topic);
 
         log.debug("Message published to topic '{}' at offset {}", topic, offset);
         return offset;

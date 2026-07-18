@@ -4,11 +4,38 @@ services:
     container_name: kunefe-broker
     ports:
       - "6565:6565"
+      - "8080:8080"
     volumes:
       - kunefe-data:/app/kunefe-data
       - kunefe-offsets:/app/kunefe-offsets
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - kunefe-broker
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
 volumes:
   kunefe-data:
   kunefe-offsets:
+  grafana-data:
