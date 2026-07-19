@@ -6,6 +6,10 @@ updates:
       interval: "weekly"
     labels:
       - "dependencies"
+    groups:
+      gradle-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -13,3 +17,7 @@ updates:
       interval: "weekly"
     labels:
       - "dependencies"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
