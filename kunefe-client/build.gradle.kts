@@ -1,5 +1,5 @@
 plugins {
-    id("com.google.protobuf") version "0.9.4"
+    id("com.google.protobuf") version "0.10.0"
 }
 
 dependencies {
@@ -12,5 +12,5 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("org.slf4j:slf4j-api:2.0.18")
 }

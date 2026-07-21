@@ -1,7 +1,7 @@
 plugins {
     id("org.springframework.boot")
     id("io.spring.dependency-management")
-    id("com.google.protobuf") version "0.9.4"
+    id("com.google.protobuf") version "0.10.0"
 }
 
 dependencies {
@@ -11,7 +11,7 @@ dependencies {
     implementation("io.grpc:grpc-netty-shaded:1.82.2")
     implementation("io.grpc:grpc-protobuf:1.82.2")
     implementation("io.grpc:grpc-stub:1.82.2")
-    implementation("net.devh:grpc-server-spring-boot-starter:3.0.0.RELEASE")
+    implementation("net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE")
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter")
