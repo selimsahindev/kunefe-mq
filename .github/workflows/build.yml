@@ -3,24 +3,8 @@ name: CI
 on:
   push:
     branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE.md'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'LICENSE'
   pull_request:
     branches: [ "main" ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE.md'
-      - 'SECURITY.md'
-      - 'CONTRIBUTING.md'
-      - 'LICENSE'
 
 jobs:
   build-and-test:
@@ -30,7 +14,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      - name: Check changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - 'kunefe-broker/**'
+              - 'kunefe-client/**'
+              - 'kunefe-proto/**'
+              - 'kunefe-spring-boot-starter/**'
+              - 'kunefe-test/**'
+              - 'build.gradle.kts'
+              - 'settings.gradle.kts'
+
       - name: Set up Java 21
+        if: steps.filter.outputs.code == 'true'
         uses: actions/setup-java@v5
         with:
           java-version: '21'
@@ -38,15 +37,19 @@ jobs:
           cache: gradle
 
       - name: Grant execute permission for gradlew
+        if: steps.filter.outputs.code == 'true'
         run: chmod +x gradlew
 
       - name: Build with Gradle
+        if: steps.filter.outputs.code == 'true'
         run: ./gradlew build -x test
 
       - name: Run unit tests
+        if: steps.filter.outputs.code == 'true'
         run: ./gradlew test -x :kunefe-test:test
 
       - name: Run integration tests
+        if: steps.filter.outputs.code == 'true'
         run: ./gradlew :kunefe-test:test
 
   publish-docker:
