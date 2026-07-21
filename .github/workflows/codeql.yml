@@ -21,19 +21,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      - name: Check changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - 'kunefe-broker/**'
+              - 'kunefe-client/**'
+              - 'kunefe-proto/**'
+              - 'kunefe-spring-boot-starter/**'
+              - 'kunefe-test/**'
+              - 'build.gradle.kts'
+              - 'settings.gradle.kts'
+
       - name: Set up Java 21
+        if: steps.filter.outputs.code == 'true' || github.event_name == 'schedule'
         uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Initialize CodeQL
+        if: steps.filter.outputs.code == 'true' || github.event_name == 'schedule'
         uses: github/codeql-action/init@v4
         with:
           languages: java
 
       - name: Build with Gradle
+        if: steps.filter.outputs.code == 'true' || github.event_name == 'schedule'
         run: ./gradlew :kunefe-broker:classes :kunefe-client:classes :kunefe-spring-boot-starter:classes -x test
 
       - name: Perform CodeQL Analysis
+        if: steps.filter.outputs.code == 'true' || github.event_name == 'schedule'
         uses: github/codeql-action/analyze@v4
