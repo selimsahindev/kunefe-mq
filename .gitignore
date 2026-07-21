@@ -27,3 +27,17 @@ kunefe-data/
 kunefe-offsets/
 **/kunefe-data/
 **/kunefe-offsets/
+
+# Benchmark runtime data
+benchmark-data/
+benchmark-offsets/
+benchmark-e2e-data/
+benchmark-e2e-offsets/
+benchmark-results.json
+**/benchmark-data/
+**/benchmark-offsets/
+**/benchmark-e2e-data/
+**/benchmark-e2e-offsets/
+
+# JVM heap dumps
+*.hprof
