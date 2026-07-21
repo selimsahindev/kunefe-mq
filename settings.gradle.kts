@@ -5,5 +5,6 @@ include(
     "kunefe-broker",
     "kunefe-client",
     "kunefe-spring-boot-starter",
-    "kunefe-test"
+    "kunefe-test",
+    "kunefe-benchmark"
 )

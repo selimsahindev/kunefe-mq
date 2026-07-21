@@ -9,10 +9,10 @@
   <a href="https://securityscorecards.dev/viewer/?uri=github.com/selimsahindev/kunefe-mq">
     <img src="https://api.securityscorecards.dev/projects/github.com/selimsahindev/kunefe-mq/badge" alt="OpenSSF Scorecard"/>
   </a>
-  <img src="https://img.shields.io/badge/Java-21-black"/>
-  <img src="https://img.shields.io/badge/gRPC-1.64-black"/>
-  <img src="https://img.shields.io/badge/Spring%20Boot-3.4.5-black"/>
-  <img src="https://img.shields.io/badge/license-MIT-black"/>
+  <img src="https://img.shields.io/badge/Java-21-black" alt="Java 21"/>
+  <img src="https://img.shields.io/badge/gRPC-1.82-black" alt="gRPC 1.82"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.4.5-black" alt="Spring Boot 3.4.5"/>
+  <img src="https://img.shields.io/badge/license-MIT-black" alt="MIT License"/>
 </p>
 
 <p align="center">
@@ -55,6 +55,26 @@ Kunefe optimizes for **low latency** and **developer experience** over raw throu
 - **Persistent offsets** — consumer group offsets are stored in RocksDB. Broker restarts do not cause message loss or redelivery.
 - **Java 21 Virtual Threads** — each subscriber runs on a dedicated virtual thread. Thousands of concurrent consumers with zero platform thread exhaustion.
 - **Global ordering** — no partitions means no partition-key complexity. Message order is always guaranteed within a topic.
+
+---
+
+## Benchmarks
+
+> Tested on Apple M4 Pro 24GB, Java 21 — single thread, local gRPC
+
+<br>
+
+| Benchmark | Result |
+|---|---|
+| Producer throughput (64B) | ~16,300 msg/sec |
+| Producer throughput (1KB) | ~15,600 msg/sec |
+| Producer throughput (10KB) | ~14,500 msg/sec |
+| End-to-end latency (p50) | ~588ms* |
+
+<br>
+
+*E2E latency includes 100ms push loop interval.
+Reducible via `kunefe.log.retention.check-interval-ms` configuration.
 
 ---
 

@@ -1,0 +1,4 @@
+logging:
+  level:
+    root: WARN
+    dev.selimsahin.kunefe: WARN
