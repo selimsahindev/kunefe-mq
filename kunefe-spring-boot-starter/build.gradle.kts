@@ -7,7 +7,7 @@ plugins {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.5")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.1.0")
     }
 }
 
@@ -21,13 +21,13 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     // gRPC
-    implementation("io.grpc:grpc-netty-shaded:1.82.2")
-    implementation("io.grpc:grpc-protobuf:1.82.2")
-    implementation("io.grpc:grpc-stub:1.82.2")
+    implementation("io.grpc:grpc-netty-shaded:1.83.0")
+    implementation("io.grpc:grpc-protobuf:1.83.0")
+    implementation("io.grpc:grpc-stub:1.83.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("org.slf4j:slf4j-api:2.0.18")
 }
 
 java {

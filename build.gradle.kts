@@ -1,6 +1,6 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.4.5" apply false
+    id("org.springframework.boot") version "4.1.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
 }
 
@@ -25,7 +25,7 @@ subprojects {
     }
 
     dependencies {
-        testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+        testImplementation("org.junit.jupiter:junit-jupiter:6.1.2")
     }
 
     tasks.withType<Test> {

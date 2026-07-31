@@ -5,7 +5,7 @@ plugins {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.5")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.1.0")
     }
 }
 
@@ -15,9 +15,9 @@ dependencies {
     implementation(project(":kunefe-proto"))
 
     // gRPC
-    implementation("io.grpc:grpc-netty-shaded:1.82.2")
-    implementation("io.grpc:grpc-protobuf:1.82.2")
-    implementation("io.grpc:grpc-stub:1.82.2")
+    implementation("io.grpc:grpc-netty-shaded:1.83.0")
+    implementation("io.grpc:grpc-protobuf:1.83.0")
+    implementation("io.grpc:grpc-stub:1.83.0")
 
     // JMH
     implementation("org.openjdk.jmh:jmh-core:1.37")
