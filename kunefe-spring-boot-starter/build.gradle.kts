@@ -1,6 +1,9 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id("org.springframework.boot") apply false
     id("io.spring.dependency-management")
+    id("com.vanniktech.maven.publish")
 }
 
 dependencyManagement {
@@ -26,4 +29,38 @@ dependencies {
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.13")
+}
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
+
+    coordinates("dev.selimsahin.kunefe", "kunefe-client", "0.1.0")
+
+    pom {
+        name.set("Kunefe Client")
+        description.set("Core Java client for Kunefe MQ — lightweight gRPC-based message broker")
+        url.set("https://github.com/selimsahindev/kunefe-mq")
+
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("selimsahindev")
+                name.set("Selim Şahin")
+                url.set("https://selimsahin.dev")
+            }
+        }
+
+        scm {
+            connection.set("scm:git:git://github.com/selimsahindev/kunefe-mq.git")
+            developerConnection.set("scm:git:ssh://github.com/selimsahindev/kunefe-mq.git")
+            url.set("https://github.com/selimsahindev/kunefe-mq")
+        }
+    }
 }
