@@ -1,6 +1,9 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id("org.springframework.boot") apply false
     id("io.spring.dependency-management")
+    id("com.vanniktech.maven.publish")
     `maven-publish`
     signing
 }
@@ -35,58 +38,36 @@ java {
     withSourcesJar()
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-            artifactId = "kunefe-spring-boot-starter"
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 
-            pom {
-                name.set("Kunefe Spring Boot Starter")
-                description.set("Core Java client for Kunefe MQ — lightweight gRPC-based message broker")
-                url.set("https://github.com/selimsahindev/kunefe-mq")
+    coordinates("dev.selimsahin.kunefe", "kunefe-client", "0.1.0")
 
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
+    pom {
+        name.set("Kunefe Client")
+        description.set("Core Java client for Kunefe MQ — lightweight gRPC-based message broker")
+        url.set("https://github.com/selimsahindev/kunefe-mq")
 
-                developers {
-                    developer {
-                        id.set("selimsahindev")
-                        name.set("Selim Şahin")
-                        url.set("https://selimsahin.dev")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/selimsahindev/kunefe-mq.git")
-                    developerConnection.set("scm:git:ssh://github.com/selimsahindev/kunefe-mq.git")
-                    url.set("https://github.com/selimsahindev/kunefe-mq")
-                }
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
             }
         }
-    }
 
-    repositories {
-        maven {
-            name = "SonatypeCentral"
-            url = uri("https://central.sonatype.com/api/v1/publisher/upload")
-            credentials {
-                username = System.getenv("SONATYPE_USERNAME")
-                password = System.getenv("SONATYPE_PASSWORD")
+        developers {
+            developer {
+                id.set("selimsahindev")
+                name.set("Selim Şahin")
+                url.set("https://selimsahin.dev")
             }
         }
-    }
-}
 
-signing {
-    val gpgKey = System.getenv("MAVEN_GPG_PRIVATE_KEY")
-    val gpgPassphrase = System.getenv("MAVEN_GPG_PASSPHRASE")
-    if (gpgKey != null && gpgPassphrase != null) {
-        useInMemoryPgpKeys(gpgKey, gpgPassphrase)
-        sign(publishing.publications["mavenJava"])
+        scm {
+            connection.set("scm:git:git://github.com/selimsahindev/kunefe-mq.git")
+            developerConnection.set("scm:git:ssh://github.com/selimsahindev/kunefe-mq.git")
+            url.set("https://github.com/selimsahindev/kunefe-mq")
+        }
     }
 }

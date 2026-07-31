@@ -45,7 +45,7 @@ jobs:
           RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
         run: |
           ./gradlew \
-            :kunefe-proto:publish \
-            :kunefe-client:publish \
-            :kunefe-spring-boot-starter:publish \
+            :kunefe-proto:publishAllPublicationsToMavenCentral \
+            :kunefe-client:publishAllPublicationsToMavenCentral \
+            :kunefe-spring-boot-starter:publishAllPublicationsToMavenCentral \
             -PreleaseVersion=$RELEASE_VERSION
