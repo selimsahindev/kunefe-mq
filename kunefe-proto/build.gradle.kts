@@ -33,11 +33,11 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("dev.selimsahin.kunefe", "kunefe-client", "0.1.0")
+    coordinates("dev.selimsahin.kunefe", "kunefe-proto", project.version.toString())
 
     pom {
-        name.set("Kunefe Client")
-        description.set("Core Java client for Kunefe MQ — lightweight gRPC-based message broker")
+        name.set("Kunefe Proto")
+        description.set("Protobuf contracts for Kunefe MQ — BrokerService, ProducerService, ConsumerService")
         url.set("https://github.com/selimsahindev/kunefe-mq")
 
         licenses {

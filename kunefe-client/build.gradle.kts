@@ -22,7 +22,7 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
-    coordinates("dev.selimsahin.kunefe", "kunefe-client", "0.1.0")
+    coordinates("dev.selimsahin.kunefe", "kunefe-client", project.version.toString())
 
     pom {
         name.set("Kunefe Client")
