@@ -6,7 +6,8 @@ plugins {
 
 allprojects {
     group = "dev.selimsahin.kunefe"
-    version = "0.1.0-SNAPSHOT"
+    version = project.findProperty("releaseVersion")?.toString()
+        ?: "0.1.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -19,6 +20,8 @@ subprojects {
     java {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+        withJavadocJar()
+        withSourcesJar()
     }
 
     dependencies {
