@@ -2,11 +2,13 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.5" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
+    id("com.vanniktech.maven.publish") version "0.30.0" apply false
 }
 
 allprojects {
     group = "dev.selimsahin.kunefe"
-    version = "0.1.0-SNAPSHOT"
+    version = project.findProperty("releaseVersion")?.toString()
+        ?: "0.1.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
