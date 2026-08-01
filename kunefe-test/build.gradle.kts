@@ -5,7 +5,7 @@ plugins {
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.5")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:4.1.0")
     }
 }
 
@@ -18,12 +18,12 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     // gRPC
-    testImplementation("io.grpc:grpc-netty-shaded:1.82.2")
-    testImplementation("io.grpc:grpc-protobuf:1.82.2")
-    testImplementation("io.grpc:grpc-stub:1.82.2")
+    testImplementation("io.grpc:grpc-netty-shaded:1.83.0")
+    testImplementation("io.grpc:grpc-protobuf:1.83.0")
+    testImplementation("io.grpc:grpc-stub:1.83.0")
 
     // JUnit Platform
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
