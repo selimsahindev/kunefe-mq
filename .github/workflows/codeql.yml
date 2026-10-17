@@ -37,7 +37,7 @@ jobs:
 
       - name: Set up Java 21
         if: steps.filter.outputs.code == 'true' || github.event_name == 'schedule'
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
